@@ -14,38 +14,27 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.scene.text.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Scanner;
-
+import java.util.*;
 
 
 public class Main extends Application {
 
-/*    private Node getNodeFromGridPane(GridPane gridPane, int col, int row) {
-        for (Node node : gridPane.getChildren()) {
-            if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
-                return node;
-            }
-        }
-        return null;
-    }*/
-
-
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
 
-        int n=6;
+        int n = 6;
 
         primaryStage.setTitle("MathDoku");
         VBox vbox = new VBox();
 
         StackPane stackpane = new StackPane();
-        stackpane.setPadding(new Insets(10, 10 , 10, 10));
+        stackpane.setPadding(new Insets(10, 10, 10, 10));
 
         GridPane gridPane = new GridPane();
         Pane canvas = new Pane();
@@ -61,33 +50,22 @@ public class Main extends Application {
         TextField input = new TextField();
         CheckBox mistake = new CheckBox();
 
-        ArrayList<Line> hlines = new ArrayList<Line>();
-        ArrayList<Line> vlines = new ArrayList<Line>();
+        Line hline = new Line();
+        hline.setStartX(0);
+        hline.setStartY(0);
+        hline.setEndX(n * 100);
+        hline.setEndY(0);
+        hline.setStrokeWidth(6);
 
-        for (int i = 0; i <= n; i++) {
-            Line hline = new Line();
-            hline.setStartX(0);
-            hline.setStartY(i*100);
-            hline.setEndX(n*100);
-            hline.setEndY(i*100);
-            //hline.setStrokeWidth(3);
-            hlines.add(hline);
-            //hline.setStroke(Color.TRANSPARENT);
+        Line vline = new Line();
+        vline.setStartX(0);
+        vline.setStartY(0);
+        vline.setEndX(0);
+        vline.setEndY(n * 100);
+        vline.setStrokeWidth(6);
 
-            Line vline = new Line();
-            vline.setStartX(i*100);
-            vline.setStartY(0);
-            vline.setEndX(i*100);
-            vline.setEndY(n*100);
-            //vline.setStrokeWidth(3);
-            vlines.add(vline);
-            //vline.setStroke(Color.TRANSPARENT);
+        canvas.getChildren().addAll(hline, vline);
 
-            canvas.getChildren().addAll(hline, vline);
-        }
-
-        hlines.get(0).setStrokeWidth(3);
-        vlines.get(0).setStrokeWidth(3);
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -99,102 +77,102 @@ public class Main extends Application {
                 //rec.setStrokeWidth(3);
                 GridPane.setRowIndex(rec, i);
                 GridPane.setColumnIndex(rec, j);
-                rec.setX(j*100);
-                rec.setY(i*100);
+                rec.setX(j * 100);
+                rec.setY(i * 100);
                 gridPane.getChildren().addAll(rec);
             }
         }
-        //Rectangle rec = (Rectangle) getNodeFromGridPane(gridPane, 2,2);
-/*        for (int id : cage){
-            Rectangle rec=(Rectangle) gridPane.getChildren().get(id-1);
-            rec.setStroke(Color.BLACK);
-        }*/
 
         ArrayList<ArrayList<Integer>> cageList = new ArrayList<ArrayList<Integer>>();
 
+        ArrayList<String> strings = new ArrayList<String>();
+
         File inputFile = new File("D:\\labs\\MathDoku\\src\\sample\\input.txt");
         Scanner scanner = new Scanner(inputFile);
-        while (scanner.hasNextLine()){
-            //System.out.println(scanner.next());
+        while (scanner.hasNextLine()) {
             ArrayList<Integer> cage = new ArrayList<Integer>();
-            String line = scanner.next();
-            String[] nodes = line.split(",");
+            String string = scanner.nextLine();
 
-            for (String node : nodes){
+            String number = string.substring(0, string.indexOf(' '));
+            strings.add(number);
+            String line = string.substring(string.indexOf(' ')+1);
+            //System.out.println(number);
+
+            String[] nodes = line.split(",");
+            for (String node : nodes) {
                 cage.add(Integer.parseInt(node));
             }
-
             cageList.add(cage);
+
+
+
         }
 
-/*        ArrayList<Integer> cage = new ArrayList<Integer>();
-        cage.add(1 - 1);
-        cage.add(7 - 1);*/
+        ArrayList<Line> horizontalLines = new ArrayList<Line>();
+        ArrayList<Line> verticalLines = new ArrayList<Line>();
+
+        for (int i = 0; i < n * n; i++) {
+            Rectangle rec = (Rectangle) gridPane.getChildren().get(i);
+
+            int x1 = (int) rec.getX();
+            int y1 = (int) rec.getY();
+
+            Line line1 = new Line();
+            line1.setStartX(x1 + 100);
+            line1.setStartY(y1);
+            line1.setEndX(x1 + 100);
+            line1.setEndY(y1 + 100);
+            //line1.setStroke(Color.RED);
+            line1.setStrokeWidth(6);
+            canvas.getChildren().addAll(line1);
+            verticalLines.add(line1);
+
+            Line line2 = new Line();
+            line2.setStartX(x1);
+            line2.setStartY(y1 + 100);
+            line2.setEndX(x1 + 100);
+            line2.setEndY(y1 + 100);
+            //line2.setStroke(Color.BLUE);
+            line2.setStrokeWidth(6);
+            canvas.getChildren().addAll(line2);
+            horizontalLines.add(line2);
+
+
+
+        }
 
         for (ArrayList<Integer> cage : cageList) {
-            for (int i = 0; i < n * n; i++) {
-                if (i < cage.size() - 1 && (cage.get(i) == (cage.get(i + 1)) - 1)) {
+
+            for(int i=0; i<cage.size(); i++){
+
+                if (i < cage.size() - 1 && cage.get(i) == (cage.get(i + 1)) - 1) {
                     System.out.println("skip");
-                } else {
-                    Rectangle rec = (Rectangle) gridPane.getChildren().get(i);
-
-                    int x1 = (int) rec.getX();
-                    int y1 = (int) rec.getY();
-
-                    Line line1 = new Line();
-                    line1.setStartX(x1 + 100);
-                    line1.setStartY(y1);
-                    line1.setEndX(x1 + 100);
-                    line1.setEndY(y1 + 100);
-                    line1.setStroke(Color.RED);
-                    line1.setStrokeWidth(3);
-                    canvas.getChildren().addAll(line1);
+                    verticalLines.get(cage.get(i)-1).setStrokeWidth(1);
                 }
 
-                if (i < cage.size() - 1 && (cage.get(i) == (cage.get(i + 1)) - n)) {
+                if (i < cage.size() - 1 &&cage.get(i) == (cage.get(i + 1)) - n) {
                     System.out.println("skip");
-                } else {
-                    Rectangle rec = (Rectangle) gridPane.getChildren().get(i);
-
-                    int x1 = (int) rec.getX();
-                    int y1 = (int) rec.getY();
-
-                    Line line1 = new Line();
-                    line1.setStartX(x1);
-                    line1.setStartY(y1 + 100);
-                    line1.setEndX(x1 + 100);
-                    line1.setEndY(y1 + 100);
-                    line1.setStroke(Color.BLUE);
-                    line1.setStrokeWidth(3);
-                    canvas.getChildren().addAll(line1);
+                    horizontalLines.get(cage.get(i)-1).setStrokeWidth(1);
                 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+                if (i < cage.size() - 2 &&cage.get(i) == (cage.get(i + 2)) - n) {
+                    System.out.println("skip");                                                 ///THIS IS REALLY BAD BUT WORKS FOR NOW///
+                    horizontalLines.get(cage.get(i)-1).setStrokeWidth(1);
+                }
+//////////////////////////////////////////////////////////////////////////////////////////////
             }
         }
 
-//DRAWS A RED LINE BETWEEN 2 HORIZONTAL CONSECUTIVE CAGE RECTANGLES
-/*
-        for (int i = 0; i<cage.size(); i++) {
-            if(i==cage.size()-1) {
-                break;
-            } else {
-                if (cage.get(i) == cage.get(i + 1) - 1) {
-                    Rectangle rec1 = (Rectangle) gridPane.getChildren().get(cage.get(i)-1);
-                    Rectangle rec2 = (Rectangle) gridPane.getChildren().get(cage.get(i + 1)-1);
+        for (int i=0; i<cageList.size(); i++){
+            Rectangle rec = (Rectangle) gridPane.getChildren().get(cageList.get(i).get(0)-1);
+            int x = (int) rec.getX();
+            int y = (int) rec.getY();
 
-                    int x1 = (int) rec1.getX();
-                    int y1 = (int) rec1.getY();
-
-                    Line line1 = new Line();
-                    line1.setStartX(x1 + 100);
-                    line1.setStartY(y1);
-                    line1.setEndX(x1 + 100);
-                    line1.setEndY(y1 + 100);
-                    line1.setStroke(Color.RED);
-                    line1.setStrokeWidth(3);
-                    canvas.getChildren().addAll(line1);
-                }
-            }
-        }*/
+            Text text = new Text(x+5, y+20, strings.get(i));
+            text.setFont(Font.font ("Verdana", 20));
+            canvas.getChildren().add(text);
+        }
 
         hbox.getChildren().addAll(undo, redo, clear, file, input, mistake);
         vbox.getChildren().addAll(stackpane,hbox);
