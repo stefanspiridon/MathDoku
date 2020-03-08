@@ -1,6 +1,7 @@
 package sample;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -27,6 +28,9 @@ import java.util.*;
 /*
 QUESTIONS:
 DO I NEED TO CLEAR A CELL BEFORE I ENTER ANOTHER VALUE?
+
+things to keep in mind:
+if a mistake is not corrected immediately it doesn't remember it
 
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,6 +332,10 @@ public class Main extends Application {
             boxList.get(i).getText().textProperty().addListener(new ChangeListener<String>() {
                 @Override
                 public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
+                    for(Box box : boxList){
+                        box.getRec().setFill(Color.TRANSPARENT);
+                    }
+
                     int column = finalI % 6 ;// 1 mod 6 = 1
                     int row = (int) finalI / 6;// 1 / 6 = 0
 
@@ -451,9 +459,32 @@ public class Main extends Application {
                             }
                         }
                     }
+
+                    int num=0;
+                    for(Box box : boxList){
+                        if(box.getRec().getFill()==Color.TRANSPARENT && box.getText().getText()!=null && !box.getText().getText().isEmpty()){
+                            num++;
+                        }
+                    }
+                    if(num==boxList.size()){
+                        System.out.println("you won bro");
+                    }
                 }
             });
         }
+
+        clear.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                for(Box box : boxList){
+                    canvas.getChildren().remove(box.getText());
+                    box.getText().setText(null);
+                    box.setFlag(false);
+                    box.getRec().setStroke(Color.TRANSPARENT);
+                }
+            }
+        });
+
 
         hbox.getChildren().addAll(undo, redo, clear, file, input, mistake);
         vbox.getChildren().addAll(stackpane, hbox, numberBox);
