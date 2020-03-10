@@ -76,6 +76,7 @@ public class Main extends Application {
 
     }
 
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -109,6 +110,9 @@ public class Main extends Application {
         //LIST TO STORE BOXES
         ArrayList<Box> boxList = new ArrayList<Box>();
 
+        //STACK FOR UNDO
+        Stack<Box> boxStack = new Stack<Box>();
+
         //NUMBER GUI BUTTONS CREATION AND EVENT HANDLING
         for (int i =1; i<=n; i++){
             Button button = new Button(String.valueOf(i));
@@ -127,6 +131,7 @@ public class Main extends Application {
                         box.getText().setFont(Font.font ("Comic Sans MS", 50));
                         box.getText().setText(num);
                         canvas.getChildren().add(box.getText());
+                        boxStack.add(box);
                         //box.setText(box.getText());
 
                         box.setFlag(false);
@@ -218,6 +223,7 @@ public class Main extends Application {
                                 box.getText().setFont(Font.font("Comic Sans MS", 50));
                                 box.getText().setText(num);
                                 canvas.getChildren().add(box.getText());
+                                boxStack.add(box);
                                 //box.setText(box.getText());
 
                                 box.setFlag(false);
@@ -327,6 +333,7 @@ public class Main extends Application {
 
         //MISTAKE DETECTION
 
+        //this needs to be optional so maybe set a flag as well when a mistake is detected?
         for(int i=0; i< boxList.size(); i++){
             int finalI = i;
             boxList.get(i).getText().textProperty().addListener(new ChangeListener<String>() {
@@ -460,6 +467,7 @@ public class Main extends Application {
                         }
                     }
 
+                    //change this
                     int num=0;
                     for(Box box : boxList){
                         if(box.getRec().getFill()==Color.TRANSPARENT && box.getText().getText()!=null && !box.getText().getText().isEmpty()){
@@ -485,6 +493,43 @@ public class Main extends Application {
             }
         });
 
+        Stack<Box> memory = new Stack<Box>();
+
+        undo.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                Box box = boxStack.pop();
+                memory.add(box);
+                canvas.getChildren().remove(box.getText());
+                //box.getText().setText(null);
+                box.setFlag(false);
+                box.getRec().setStroke(Color.TRANSPARENT);
+
+            }
+        });
+
+
+        redo.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                Box box = memory.pop();
+
+                int x = (int) ((int) box.getRec().getX() + box.getRec().getWidth() / 2);
+                int y = (int) ((int) box.getRec().getY() + box.getRec().getHeight() / 2);
+
+                box.getText().setX(x - 13);
+                box.getText().setY(y + 19);
+                box.getText().setFont(Font.font("Comic Sans MS", 50));
+                //box.getText().setText(num);
+                canvas.getChildren().add(box.getText());
+                boxStack.add(box);
+                //box.setText(box.getText());
+
+                box.setFlag(false);
+                box.getRec().setStroke(Color.TRANSPARENT);
+
+            }
+        });
 
         hbox.getChildren().addAll(undo, redo, clear, file, input, mistake);
         vbox.getChildren().addAll(stackpane, hbox, numberBox);
